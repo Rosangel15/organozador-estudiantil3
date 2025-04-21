@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Sistema Educativo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="logo.png">
+    <style>
+        :root {
+            --primary-color: #6a4cff;
+            --primary-dark: #4a2dff;
+            --accent-color: #00e5ff;
+            --bg-color: #121212;
+            --bg-light: #1e1e1e;
+            --bg-lighter: #2a2a2a;
+            --text-color: #f0f0f0;
+            --text-light: #aaaaaa;
+            --success: #4caf50;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animación de fondo */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        .bg-animation li:nth-child(1) {
+            left: 25%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 0s;
+        }
+
+        .bg-animation li:nth-child(2) {
+            left: 10%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 2s;
+            animation-duration: 12s;
+        }
+
+        .bg-animation li:nth-child(3) {
+            left: 70%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 4s;
+        }
+
+        .bg-animation li:nth-child(4) {
+            left: 40%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 0s;
+            animation-duration: 18s;
+        }
+
+        .bg-animation li:nth-child(5) {
+            left: 65%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 0s;
+        }
+
+        .bg-animation li:nth-child(6) {
+            left: 75%;
+            width: 110px;
+            height: 110px;
+            animation-delay: 3s;
+        }
+
+        .bg-animation li:nth-child(7) {
+            left: 35%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 7s;
+        }
+
+        .bg-animation li:nth-child(8) {
+            left: 50%;
+            width: 25px;
+            height: 25px;
+            animation-delay: 15s;
+            animation-duration: 45s;
+        }
+
+        .bg-animation li:nth-child(9) {
+            left: 20%;
+            width: 15px;
+            height: 15px;
+            animation-delay: 2s;
+            animation-duration: 35s;
+        }
+
+        .bg-animation li:nth-child(10) {
+            left: 85%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 0s;
+            animation-duration: 11s;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+
+        /* Header */
+        header {
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(106, 76, 255, 0.5); }
+            to { text-shadow: 0 0 15px rgba(0, 229, 255, 0.8); }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background-color: var(--bg-light);
+            border-radius: 10px;
+            padding: 1rem;
+            width: 250px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .user-info .user-avatar {
+            width: 50px;
+            height: 50px;
+        }
+
+        .user-details h3 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-details p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            padding: 0.5rem;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout {
+            color: var(--danger);
+        }
+
+        .logout:hover {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .welcome-section p {
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            animation: borderGlow 3s infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 10px var(--primary-color); }
+            100% { box-shadow: 0 0 20px var(--accent-color); }
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 200, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent-color);
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+        }
+
+        .card-content {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .card-btn:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 76, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Modal de cierre de sesión */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--bg-light);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            box-shadow: 0 5px 30px rgba(0, 200, 255, 0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+        }
+
+        .modal-btn.cancel {
+            background-color: var(--bg-lighter);
+            color: var(--text-color);
+        }
+
+        .modal-btn.logout {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animación de fondo -->
+    <ul class="bg-animation">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>Mathitis Diorganotis</h1>
+        </div>
+        
+        <div class="user-menu">
+            <button class="user-btn" id="user-btn">
+                <div class="user-avatar" id="user-avatar">
+                    <span>U</span>
+                </div>
+                <span>Usuario</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="user-info">
+                    <div class="user-avatar" id="dropdown-avatar">
+                        <span>U</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="username">Usuario</h3>
+                        <p id="user-email">usuario@example.com</p>
+                    </div>
+                </div>
+                
+                
+                <div class="menu-item logout" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- contedido -->
+    <div class="container">
+        <section class="welcome-section">
+            <h2>Bienvenido de vuelta, <span id="welcome-username">Usuario</span>!</h2>
+            <p>Gestiona tus actividades académicas y aprovecha al máximo las herramientas que tenemos para ti.</p>
+        </section>
+        
+           <!-- botones -->
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Agenda Personal</h3>
+                </div>
+                <div class="card-content">
+                    <p>Organiza tus tareas, eventos y recordatorios importantes con nuestro calendario interactivo.</p>
+                </div>
+                <button class="card-btn" onclick="window.location.href='calendario.html'">Abrir Agenda</button>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-robot"></i>
+                    <h3>Selector de IAs</h3>
+                </div>
+                <div class="card-content">
+                    <p>Accede a diferentes asistentes de inteligencia artificial para ayudarte con tus estudios e investigaciones.</p>
+                </div>
+                <button class="card-btn" onclick="window.location.href='servicio-ia.html'">Explorar IAs</button>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-clock"></i>
+                    <h3>Horario de Clases</h3>
+                </div>
+                <div class="card-content">
+                    <p>Mantén un registro de tus horarios de clase y actividades académicas de forma organizada.</p>
+                </div>
+                <button class="card-btn" onclick="window.location.href='horario.html'">Ver Horario</button>
+            </div>
+            
+            <!-- Nueva tarjeta para el navegador web -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-globe"></i>
+                    <h3>Navegador Web</h3>
+                </div>
+                <div class="card-content">
+                    <p>Accede a un navegador web integrado para buscar información y visitar tus sitios favoritos.</p>
+                </div>
+                <button class="card-btn" onclick="window.location.href='urls.html'">Abrir Navegador</button>
+            </div>
+            
+            <!-- Nueva tarjeta para el editor de documentos -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-file-word"></i>
+                    <h3>Editor de Documentos</h3>
+                </div>
+                <div class="card-content">
+                    <p>Crea y edita documentos de texto con formato avanzado y opciones de exportación.</p>
+                </div>
+                <button class="card-btn" onclick="window.location.href='word.html'">Abrir Editor</button>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-book"></i>
+                    <h3>Material de Estudio</h3>
+                </div>
+                <div class="card-content">
+                    <p>Accede a recursos educativos, apuntes y materiales compartidos por tus profesores.</p>
+                </div>
+                <button class="card-btn" disabled>Próximamente</button>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-users"></i>
+                    <h3>Grupos de Estudio</h3>
+                </div>
+                <div class="card-content">
+                    <p>Conéctate con compañeros de clase y forma grupos de estudio colaborativos.</p>
+                </div>
+                <button class="card-btn" disabled>Próximamente</button>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Progreso Académico</h3>
+                </div>
+                <div class="card-content">
+                    <p>Visualiza tu desempeño académico y sigue tu progreso a lo largo del semestre.</p>
+                </div>
+                <button class="card-btn" disabled>Próximamente</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de cierre de sesión -->
+    <div class="modal" id="logout-modal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h2>¿Estás seguro de que quieres cerrar sesión?</h2>
+            <p>Serás redirigido a la página de inicio de sesión.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="cancel-logout">Cancelar</button>
+                <button class="modal-btn logout" id="confirm-logout">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos del usuario desde localStorage (simulado)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener datos del usuario si existen en localStorage
+            const userData = JSON.parse(localStorage.getItem('userData')) || {
+                name: 'Usuario',
+                email: 'usuario@example.com',
+                avatarInitial: 'U'
+            };
+            
+            // Actualizar la interfaz con los datos del usuario
+            document.getElementById('username').textContent = userData.name;
+            document.getElementById('user-email').textContent = userData.email;
+            document.getElementById('welcome-username').textContent = userData.name;
+            document.getElementById('user-avatar').innerHTML = `<span>${userData.avatarInitial}</span>`;
+            document.getElementById('dropdown-avatar').innerHTML = `<span>${userData.avatarInitial}</span>`;
+            
+            // Verificar si hay una imagen de perfil guardada
+            const profileImage = localStorage.getItem('profileImage');
+            if (profileImage) {
+                document.getElementById('user-avatar').innerHTML = `<img src="${profileImage}" alt="Profile">`;
+                document.getElementById('dropdown-avatar').innerHTML = `<img src="${profileImage}" alt="Profile">`;
+            }
+            
+            // Configurar el menú desplegable
+            const userBtn = document.getElementById('user-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            
+            userBtn.addEventListener('click', function() {
+                dropdownMenu.classList.toggle('active');
+            });
+            
+            // Cerrar el menú al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!userBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('active');
+                }
+            });
+            
+            // Configurar el modal de cierre de sesión
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutModal = document.getElementById('logout-modal');
+            const cancelLogout = document.getElementById('cancel-logout');
+            const confirmLogout = document.getElementById('confirm-logout');
+            
+            logoutBtn.addEventListener('click', function() {
+                logoutModal.classList.add('active');
+            });
+            
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.remove('active');
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                // Simular cierre de sesión
+                setTimeout(function() {
+                    window.location.href = 'registro.html';
+                }, 1000);
+            });
+        });
+
+        // Modificar el script para verificar autenticación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si el usuario está logueado
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            
+            if (!userData || !userData.isLoggedIn) {
+                window.location.href = 'registro.html';
+                return;
+            }
+            
+            // Configurar el modal de cierre de sesión
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutModal = document.getElementById('logout-modal');
+            const cancelLogout = document.getElementById('cancel-logout');
+            const confirmLogout = document.getElementById('confirm-logout');
+            
+            logoutBtn.addEventListener('click', function() {
+                logoutModal.classList.add('active');
+            });
+            
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.classList.remove('active');
+            });
+            
+            confirmLogout.addEventListener('click', function() {
+                // Limpiar todos los datos de sesión
+                localStorage.removeItem('userData');
+                localStorage.removeItem('profileImage');
+                
+                // Redirigir al registro
+                window.location.href = 'registro.html';
+            });
+            
+            
+        });
+    </script>
+</body>
+</html>

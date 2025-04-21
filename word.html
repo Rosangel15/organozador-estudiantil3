@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Documentos </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6a4cff;
+            --primary-dark: #4a2dff;
+            --accent-color: #00e5ff;
+            --bg-color: #121212;
+            --bg-light: #1e1e1e;
+            --bg-lighter: #2a2a2a;
+            --text-color: #f0f0f0;
+            --text-light: #aaaaaa;
+            --success: #4caf50;
+            --danger: #f44336;
+            --editor-bg: #1e1e1e;
+            --editor-text: #f0f0f0;
+        }
+
+        .light-mode {
+            --bg-color: #f5f5f5;
+            --bg-light: #ffffff;
+            --bg-lighter: #eeeeee;
+            --text-color: #333333;
+            --text-light: #666666;
+            --editor-bg: #ffffff;
+            --editor-text: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Animación de fondo */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+
+        /* Header */
+        header {
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .light-mode header {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(106, 76, 255, 0.5); }
+            to { text-shadow: 0 0 15px rgba(0, 229, 255, 0.8); }
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .light-mode .sidebar {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-right-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-color);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 76, 255, 0.3);
+        }
+
+        .documents-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .document-item {
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .light-mode .document-item {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .document-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .light-mode .document-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .document-item h4 {
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .document-item small {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Document Title */
+        .doc-title-container {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #doc-title {
+            flex: 1;
+            padding: 10px 15px;
+            background-color: var(--bg-lighter);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode #doc-title {
+            background-color: var(--bg-lighter);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        #doc-title:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .toolbar {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 10px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            margin-right: 10px;
+        }
+
+        .light-mode .toolbar-group {
+            border-right-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar button, .toolbar select {
+            background-color: var(--bg-lighter);
+            color: var(--text-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .light-mode .toolbar button, 
+        .light-mode .toolbar select {
+            background-color: var(--bg-lighter);
+        }
+
+        .toolbar button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 76, 255, 0.3);
+        }
+
+        .toolbar select {
+            min-width: 120px;
+        }
+
+        .toolbar input[type="color"] {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* Editor Area */
+        .editor-area {
+            background-color: var(--editor-bg);
+            color: var(--editor-text);
+            border-radius: 5px;
+            min-height: 500px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.6;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .editor-area {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-area:focus {
+            box-shadow: 0 5px 30px rgba(0, 200, 255, 0.2);
+        }
+
+        /* Export Options */
+        .export-options {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 76, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .light-mode .sidebar {
+                border-bottom-color: rgba(0, 0, 0, 0.1);
+            }
+            
+            .editor-container {
+                padding: 15px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .toolbar-group {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            
+            .light-mode .toolbar-group {
+                border-bottom-color: rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animación de fondo -->
+    <ul class="bg-animation">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-file-alt"></i>
+            <h1>Editor de Mathitis Diorganotis</h1>
+        </div>
+        <button class="theme-toggle" id="theme-toggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+    
+    <!-- Main Layout -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2><i class="fas fa-folder-open"></i> Biblioteca</h2>
+            <button id="new-doc" class="btn">
+                <i class="fas fa-plus"></i> Nuevo Documento
+            </button>
+            <div class="documents-list" id="documents-list">
+                <!-- Los documentos se cargarán aquí -->
+            </div>
+        </div>
+        
+        <!-- Editor Container -->
+        <div class="editor-container">
+            <!-- Document Title -->
+            <div class="doc-title-container">
+                <input type="text" id="doc-title" placeholder="Título del documento">
+                <button id="save-doc" class="btn" style="width: auto;">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+            
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <select id="format-block">
+                        <option value="p">Párrafo</option>
+                        <option value="h1">Título 1</option>
+                        <option value="h2">Título 2</option>
+                        <option value="h3">Título 3</option>
+                        <option value="blockquote">Cita</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button id="bold-btn" title="Negrita"><i class="fas fa-bold"></i></button>
+                    <button id="italic-btn" title="Cursiva"><i class="fas fa-italic"></i></button>
+                    <button id="underline-btn" title="Subrayado"><i class="fas fa-underline"></i></button>
+                    <button id="strike-btn" title="Tachado"><i class="fas fa-strikethrough"></i></button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button id="ul-btn" title="Lista con viñetas"><i class="fas fa-list-ul"></i></button>
+                    <button id="ol-btn" title="Lista numerada"><i class="fas fa-list-ol"></i></button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <input type="color" id="text-color" value="#f0f0f0" title="Color de texto">
+                    <input type="color" id="bg-color" value="#121212" title="Color de fondo">
+                </div>
+                
+                <div class="toolbar-group">
+                    <select id="font-family">
+                        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Fuente predeterminada</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-group">
+                    <select id="font-size">
+                        <option value="1">Pequeño</option>
+                        <option value="2" selected>Normal</option>
+                        <option value="3">Grande</option>
+                        <option value="4">Muy grande</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Editor Area -->
+            <div id="editor" class="editor-area" contenteditable="true">
+                <h1 style="color: var(--accent-color);">Bienvenido al Editor de Documentos Mathitis Diorganotis</h1>
+                <p>Comienza a escribir tu documento aquí...</p>
+            </div>
+            
+            <!-- Export Options -->
+            <div class="export-options">
+                <button id="export-docx" class="export-btn">
+                    <i class="fas fa-file-word"></i> Exportar a DOCX
+                </button>
+                <button id="export-pdf" class="export-btn">
+                    <i class="fas fa-file-pdf"></i> Exportar a PDF
+                </button>
+                <button id="export-txt" class="export-btn">
+                    <i class="fas fa-file-alt"></i> Exportar a TXT
+                </button>
+                <button id="export-html" class="export-btn">
+                    <i class="fas fa-file-code"></i> Exportar a HTML
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración inicial
+        document.addEventListener('DOMContentLoaded', function() {
+            const { jsPDF } = window.jspdf;
+            const docx = window.docx;
+            
+            // Elementos del DOM
+            const editor = document.getElementById('editor');
+            const themeToggle = document.getElementById('theme-toggle');
+            const docTitle = document.getElementById('doc-title');
+            const saveBtn = document.getElementById('save-doc');
+            const newDocBtn = document.getElementById('new-doc');
+            const documentsList = document.getElementById('documents-list');
+            
+            // Biblioteca de documentos
+            let documents = JSON.parse(localStorage.getItem('documents')) || [];
+            let currentDocId = null;
+            
+            // Cargar documentos al iniciar
+            renderDocuments();
+            
+            // Tema claro/oscuro
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            function toggleTheme() {
+                document.body.classList.toggle('light-mode');
+                const isLightMode = document.body.classList.contains('light-mode');
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+                updateThemeIcon();
+            }
+            
+            function updateThemeIcon() {
+                const isLightMode = document.body.classList.contains('light-mode');
+                themeToggle.innerHTML = isLightMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+            
+            // Cargar tema guardado
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+            updateThemeIcon();
+            
+            // Funciones de formato básico
+            function formatText(command, value = null) {
+                document.execCommand(command, false, value);
+                editor.focus();
+            }
+            
+            // Event listeners para los botones de formato
+            document.getElementById('bold-btn').addEventListener('click', () => formatText('bold'));
+            document.getElementById('italic-btn').addEventListener('click', () => formatText('italic'));
+            document.getElementById('underline-btn').addEventListener('click', () => formatText('underline'));
+            document.getElementById('strike-btn').addEventListener('click', () => formatText('strikeThrough'));
+            document.getElementById('ul-btn').addEventListener('click', () => formatText('insertUnorderedList'));
+            document.getElementById('ol-btn').addEventListener('click', () => formatText('insertOrderedList'));
+            
+            // Formato de bloque
+            document.getElementById('format-block').addEventListener('change', function() {
+                formatText('formatBlock', `<${this.value}>`);
+            });
+            
+            // Color de texto
+            document.getElementById('text-color').addEventListener('input', function() {
+                formatText('foreColor', this.value);
+            });
+            
+            // Color de fondo
+            document.getElementById('bg-color').addEventListener('input', function() {
+                formatText('hiliteColor', this.value);
+            });
+            
+            // Familia de fuente
+            document.getElementById('font-family').addEventListener('change', function() {
+                formatText('fontName', this.value);
+            });
+            
+            // Tamaño de fuente
+            document.getElementById('font-size').addEventListener('change', function() {
+                formatText('fontSize', this.value);
+            });
+            
+            // Nuevo documento
+            newDocBtn.addEventListener('click', createNewDocument);
+            
+            function createNewDocument() {
+                currentDocId = null;
+                docTitle.value = 'Nuevo Documento';
+                editor.innerHTML = '<h1 style="color: var(--accent-color);">Nuevo Documento</h1><p>Comienza a escribir aquí...</p>';
+                editor.focus();
+            }
+            
+            // Guardar documento
+            saveBtn.addEventListener('click', saveDocument);
+            
+            function saveDocument() {
+                const title = docTitle.value || 'Documento sin título';
+                const content = editor.innerHTML;
+                
+                if (currentDocId) {
+                    // Actualizar documento existente
+                    const index = documents.findIndex(doc => doc.id === currentDocId);
+                    if (index !== -1) {
+                        documents[index] = {
+                            id: currentDocId,
+                            title,
+                            content,
+                            updatedAt: new Date().toISOString()
+                        };
+                    }
+                } else {
+                    // Crear nuevo documento
+                    const newDoc = {
+                        id: Date.now().toString(),
+                        title,
+                        content,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    documents.push(newDoc);
+                    currentDocId = newDoc.id;
+                }
+                
+                localStorage.setItem('documents', JSON.stringify(documents));
+                renderDocuments();
+                showNotification('Documento guardado correctamente');
+            }
+            
+            // Cargar documentos en la biblioteca
+            function renderDocuments() {
+                documentsList.innerHTML = '';
+                
+                // Ordenar documentos por fecha de modificación
+                documents.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                
+                documents.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.className = 'document-item';
+                    docElement.innerHTML = `
+                        <h4>${doc.title}</h4>
+                        <small>${new Date(doc.updatedAt).toLocaleString()}</small>
+                    `;
+                    
+                    docElement.addEventListener('click', () => loadDocument(doc.id));
+                    documentsList.appendChild(docElement);
+                });
+            }
+            
+            // Cargar documento
+            function loadDocument(id) {
+                const doc = documents.find(d => d.id === id);
+                if (doc) {
+                    currentDocId = doc.id;
+                    docTitle.value = doc.title;
+                    editor.innerHTML = doc.content;
+                    editor.focus();
+                }
+            }
+            
+            // Exportar documentos
+            document.getElementById('export-docx').addEventListener('click', exportToDOCX);
+            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+            document.getElementById('export-txt').addEventListener('click', exportToTXT);
+            document.getElementById('export-html').addEventListener('click', exportToHTML);
+            
+            function exportToDOCX() {
+                try {
+                    const title = docTitle.value || 'Documento sin título';
+                    const content = editor.innerText;
+                    
+                    // Crear documento DOCX
+                    const doc = new docx.Document({
+                        title: title,
+                        description: "Documento creado con EduSync Editor",
+                    });
+                    
+                    const paragraphs = content.split('\n').filter(p => p.trim() !== '');
+                    
+                    paragraphs.forEach(p => {
+                        doc.addSection({
+                            children: [
+                                new docx.Paragraph({
+                                    text: p,
+                                    spacing: { line: 276 }
+                                })
+                            ]
+                        });
+                    });
+                    
+                    // Generar y descargar el archivo
+                    docx.Packer.toBlob(doc).then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${title}.docx`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showNotification('Documento exportado a DOCX');
+                    });
+                } catch (error) {
+                    console.error('Error al exportar a DOCX:', error);
+                    showNotification('Error al exportar a DOCX', 'error');
+                }
+            }
+            
+            function exportToPDF() {
+                try {
+                    const title = docTitle.value || 'Documento sin título';
+                    const content = editor.innerText;
+                    
+                    // Crear documento PDF
+                    const pdf = new jsPDF();
+                    pdf.text(content, 10, 10);
+                    pdf.save(`${title}.pdf`);
+                    showNotification('Documento exportado a PDF');
+                } catch (error) {
+                    console.error('Error al exportar a PDF:', error);
+                    showNotification('Error al exportar a PDF', 'error');
+                }
+            }
+            
+            function exportToTXT() {
+                try {
+                    const title = docTitle.value || 'Documento sin título';
+                    const content = editor.innerText;
+                    
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${title}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showNotification('Documento exportado a TXT');
+                } catch (error) {
+                    console.error('Error al exportar a TXT:', error);
+                    showNotification('Error al exportar a TXT', 'error');
+                }
+            }
+            
+            function exportToHTML() {
+                try {
+                    const title = docTitle.value || 'Documento sin título';
+                    const content = editor.innerHTML;
+                    
+                    const html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>${title}</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+    </style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+                    
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${title}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showNotification('Documento exportado a HTML');
+                } catch (error) {
+                    console.error('Error al exportar a HTML:', error);
+                    showNotification('Error al exportar a HTML', 'error');
+                }
+            }
+            
+            // Mostrar notificación
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.padding = '15px 20px';
+                notification.style.backgroundColor = type === 'success' ? 'var(--success)' : 'var(--danger)';
+                notification.style.color = 'white';
+                notification.style.borderRadius = '5px';
+                notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+                notification.style.zIndex = '1000';
+                notification.style.animation = 'fadeIn 0.3s ease-out';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Enfoque automático al editor
+            editor.focus();
+        });
+    </script>
+</body>
+</html>

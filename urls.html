@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navegador</title>
+    <style>
+        :root {
+            --primary: #00e5ff;
+            --primary-variant: #6a4cff;
+            --secondary: #4a2dff;
+            --background: rgba(18, 18, 18, 0.7);
+            --surface: rgba(30, 30, 30, 0.85);
+            --error: #cf6679;
+            --on-primary: #000000;
+            --on-secondary: #000000;
+            --on-background: #ffffff;
+            --on-surface: #ffffff;
+            --on-error: #000000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('logo.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -1;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .navbar {
+    background-color: var(--surface);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Añade esta línea para centrar horizontalmente */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.search-container {
+    flex: 0 1 600px; /*  0 para no crecer, 1 para encogerse, 600px de ancho base */
+    display: flex;
+    background-color: rgba(45, 45, 45, 0.8);
+    border-radius: 25px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    margin: 0 auto; /* para ayudar al centrado */
+}
+
+.logo {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-right: 20px;
+    animation: pulse 2s infinite;
+    cursor: pointer;
+    text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+    position: absolute; 
+    left: 20px; /* posicionar el logo a la izquierda */
+}
+        
+        .search-container:focus-within {
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        .search-type {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            width: 100px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--on-surface);
+            outline: none;
+            font-size: 1rem;
+        }
+        
+        .search-button, .favorite-button {
+            padding: 10px 15px;
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .search-button:hover, .favorite-button:hover {
+            background-color: var(--primary-variant);
+        }
+        
+        .favorite-button {
+            margin-left: 10px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .favorite-button.active {
+            background-color: var(--error);
+        }
+        
+        .browser-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .iframe-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .iframe-container.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: transparent;
+        }
+        
+        .loading-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+            z-index: 20;
+        }
+        
+        .controls {
+            display: flex;
+            padding: 10px;
+            background-color: var(--surface);
+            justify-content: space-between;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-button:hover {
+            background-color: var(--primary);
+            color: var(--on-primary);
+        }
+        
+        .favorites-button {
+            background-color: var(--primary-variant);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        .status-message {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 30;
+            backdrop-filter: blur(5px);
+        }
+        
+        .status-message.show {
+            opacity: 1;
+        }
+        
+        .favorites-panel {
+            position: absolute;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100%;
+            background-color: var(--surface);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            z-index: 25;
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+        
+        .favorites-panel.open {
+            right: 0;
+        }
+        
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .favorites-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .close-favorites {
+            background: none;
+            border: none;
+            color: var(--on-surface);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .favorite-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: rgba(45, 45, 45, 0.8);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .favorite-item:hover {
+            background-color: #333;
+        }
+        
+        .favorite-url {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .favorite-url:hover {
+            color: var(--primary);
+        }
+        
+        .remove-favorite {
+            background-color: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo permanente -->
+    <div class="background"></div>
+    
+    <!-- Contenedor de la aplicación -->
+    <div class="app-container">
+        <div class="navbar">
+            <div class="logo" id="home-button">Mathitis Diorganotis</div>
+            <div class="search-container">
+                <select class="search-type" id="search-type">
+                    <option value="url">URL</option>
+                    <option value="bing" selected>Bing</option>
+                </select>
+                <input type="text" class="search-input" id="search-input" placeholder="Ingresa una URL o término de búsqueda">
+                <button class="search-button" id="search-button">Ir</button>
+                <button class="favorite-button" id="favorite-button" title="Añadir a favoritos">★</button>
+            </div>
+        </div>
+        
+        <div class="loading-bar"></div>
+        
+        <div class="browser-container">
+            <div class="iframe-container">
+                <iframe id="browser-frame" src="about:blank"></iframe>
+            </div>
+            
+            <div class="overlay" id="overlay"></div>
+            
+            <div class="favorites-panel" id="favorites-panel">
+                <div class="favorites-header">
+                    <h3 class="favorites-title">Favoritos</h3>
+                    <button class="close-favorites" id="close-favorites">×</button>
+                </div>
+                <div id="favorites-list"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="nav-buttons">
+                <button class="control-button" id="back-button">Atrás</button>
+                <button class="control-button" id="forward-button">Adelante</button>
+                <button class="control-button" id="refresh-button">Recargar</button>
+            </div>
+            <button class="control-button favorites-button" id="show-favorites">Mostrar Favoritos</button>
+        </div>
+        
+        <div class="status-message" id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const searchType = document.getElementById('search-type');
+            const browserFrame = document.getElementById('browser-frame');
+            const iframeContainer = document.querySelector('.iframe-container');
+            const loadingBar = document.querySelector('.loading-bar');
+            const backButton = document.getElementById('back-button');
+            const forwardButton = document.getElementById('forward-button');
+            const refreshButton = document.getElementById('refresh-button');
+            const homeButton = document.getElementById('home-button');
+            const favoriteButton = document.getElementById('favorite-button');
+            const showFavoritesButton = document.getElementById('show-favorites');
+            const closeFavoritesButton = document.getElementById('close-favorites');
+            const favoritesPanel = document.getElementById('favorites-panel');
+            const favoritesList = document.getElementById('favorites-list');
+            const overlay = document.getElementById('overlay');
+            const statusMessage = document.getElementById('status-message');
+            
+            // Variables de estado
+            let currentUrl = '';
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            
+            // Inicialización
+            updateFavoritesList();
+            setTimeout(() => {
+                iframeContainer.classList.add('loaded');
+            }, 300);
+            
+            // Navegar a una URL o realizar búsqueda
+            function navigate(input) {
+                if (!input) return;
+                
+                const type = searchType.value;
+                
+                if (type === 'url') {
+                    // Navegación directa a URL
+                    if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                        input = 'https://' + input;
+                    }
+                    
+                    try {
+                        currentUrl = input;
+                        loadingBar.style.width = '30%';
+                        browserFrame.src = input;
+                        searchInput.value = input;
+                        updateFavoriteButton();
+                        showStatus('Cargando página...');
+                    } catch (error) {
+                        showStatus('Error: URL inválida');
+                        console.error(error);
+                    }
+                } else if (type === 'bing') {
+                    // Búsqueda en Bing
+                    const searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(input)}`;
+                    currentUrl = searchUrl;
+                    loadingBar.style.width = '30%';
+                    browserFrame.src = searchUrl;
+                    searchInput.value = input;
+                    updateFavoriteButton();
+                    showStatus('Realizando búsqueda en Bing...');
+                }
+            }
+            
+            // Mostrar mensajes de estado
+            function showStatus(message) {
+                statusMessage.textContent = message;
+                statusMessage.classList.add('show');
+                
+                setTimeout(() => {
+                    statusMessage.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Actualizar botón de favoritos
+            function updateFavoriteButton() {
+                const isFavorite = favorites.some(fav => fav.url === currentUrl);
+                favoriteButton.classList.toggle('active', isFavorite);
+                favoriteButton.title = isFavorite ? 'Eliminar de favoritos' : 'Añadir a favoritos';
+            }
+            
+            // Manejar favoritos
+            function toggleFavorite() {
+                if (!currentUrl) return;
+                
+                const existingIndex = favorites.findIndex(fav => fav.url === currentUrl);
+                
+                if (existingIndex >= 0) {
+                    // Eliminar de favoritos
+                    favorites.splice(existingIndex, 1);
+                    showStatus('Eliminado de favoritos');
+                } else {
+                    // Añadir a favoritos
+                    const title = browserFrame.contentDocument?.title || currentUrl;
+                    favorites.push({
+                        url: currentUrl,
+                        title: title
+                    });
+                    showStatus('Añadido a favoritos');
+                }
+                
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                updateFavoriteButton();
+                updateFavoritesList();
+            }
+            
+            // Actualizar lista de favoritos en el panel
+            function updateFavoritesList() {
+                favoritesList.innerHTML = '';
+                
+                if (favorites.length === 0) {
+                    favoritesList.innerHTML = '<p style="color: #777; text-align: center;">No hay favoritos guardados</p>';
+                    return;
+                }
+                
+                favorites.forEach((fav, index) => {
+                    const favoriteItem = document.createElement('div');
+                    favoriteItem.className = 'favorite-item';
+                    
+                    const urlSpan = document.createElement('span');
+                    urlSpan.className = 'favorite-url';
+                    urlSpan.textContent = fav.title || fav.url;
+                    urlSpan.title = fav.url;
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-favorite';
+                    removeBtn.textContent = '×';
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        favorites.splice(index, 1);
+                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                        updateFavoritesList();
+                        if (currentUrl === fav.url) {
+                            updateFavoriteButton();
+                        }
+                    };
+                    
+                    urlSpan.onclick = () => {
+                        navigate(fav.url);
+                        closeFavoritesPanel();
+                    };
+                    
+                    favoriteItem.appendChild(urlSpan);
+                    favoriteItem.appendChild(removeBtn);
+                    favoritesList.appendChild(favoriteItem);
+                });
+            }
+            
+            // Mostrar/ocultar panel de favoritos
+            function toggleFavoritesPanel() {
+                favoritesPanel.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+            
+            function closeFavoritesPanel() {
+                favoritesPanel.classList.remove('open');
+                overlay.classList.remove('show');
+            }
+            
+            // Event listeners
+            searchButton.addEventListener('click', () => navigate(searchInput.value));
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    navigate(searchInput.value);
+                }
+            });
+            
+            browserFrame.addEventListener('load', function() {
+                loadingBar.style.width = '100%';
+                setTimeout(() => {
+                    loadingBar.style.width = '0%';
+                }, 500);
+                
+                try {
+                    currentUrl = browserFrame.contentWindow.location.href;
+                    searchInput.value = currentUrl;
+                    updateFavoriteButton();
+                    showStatus('Página cargada');
+                } catch (e) {
+                    // Ignorar errores de CORS
+                }
+            });
+            
+            backButton.addEventListener('click', function() {
+                try {
+                    browserFrame.contentWindow.history.back();
+                } catch (e) {
+                    showStatus('No hay página anterior');
+                }
+            });
+            
+            forwardButton.addEventListener('click', function() {
+                try {
+                    browserFrame.contentWindow.history.forward();
+                } catch (e) {
+                    showStatus('No hay página siguiente');
+                }
+            });
+            
+            refreshButton.addEventListener('click', function() {
+                browserFrame.contentWindow.location.reload();
+            });
+            
+            homeButton.addEventListener('click', function() {
+                navigate('https://www.bing.com');
+            });
+            
+            favoriteButton.addEventListener('click', toggleFavorite);
+            
+            showFavoritesButton.addEventListener('click', toggleFavoritesPanel);
+            
+            closeFavoritesButton.addEventListener('click', closeFavoritesPanel);
+            
+            overlay.addEventListener('click', closeFavoritesPanel);
+            
+            
+        });
+    </script>
+</body>
+</html>

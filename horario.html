@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario de Clases Animado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9c27b0;
+            --primary-dark: #7b1fa2;
+            --accent-color: #00e5ff;
+            --bg-color: #121212;
+            --bg-light: #1e1e1e;
+            --bg-lighter: #2a2a2a;
+            --text-color: #f0f0f0;
+            --text-light: #aaaaaa;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(156, 39, 176, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 229, 255, 0.1) 0%, transparent 20%);
+            animation: gradientShift 15s infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .horario-container {
+            max-width: 900px;
+            width: 95%;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: var(--bg-light);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .horario-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            animation: borderGlow 3s infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 10px var(--primary-color); }
+            100% { box-shadow: 0 0 20px var(--accent-color); }
+        }
+
+        .horario-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--accent-color);
+            font-size: 28px;
+            font-weight: 500;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .horario-container h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            animation: titleUnderline 3s infinite;
+        }
+
+        @keyframes titleUnderline {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        .horario-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            animation: tableAppear 0.8s ease-out;
+        }
+
+        @keyframes tableAppear {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .horario-table th, .horario-table td {
+            padding: 14px 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .horario-table th {
+            background-color: var(--primary-dark);
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .horario-table th::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s;
+        }
+
+        .horario-table th:hover::after {
+            left: 100%;
+        }
+
+        .horario-table tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .horario-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .horario-table input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: var(--bg-lighter);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .horario-table input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .buttons {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .buttons button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+            min-width: 160px;
+        }
+
+        .buttons button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s;
+        }
+
+        .buttons button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        .buttons button:hover::after {
+            left: 100%;
+        }
+
+        .buttons button:active {
+            transform: translateY(1px);
+        }
+
+        .buttons button:nth-child(1) {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .buttons button:nth-child(1):hover {
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .buttons button:nth-child(2) {
+            background: linear-gradient(135deg, #f44336, #c62828);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .buttons button:nth-child(2):hover {
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .buttons button:nth-child(3) {
+            background: linear-gradient(135deg, #2196f3, #1565c0);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .buttons button:nth-child(3):hover {
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Efecto de partículas */
+        .particle {
+            position: absolute;
+            background: rgba(0, 229, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .horario-container {
+                padding: 20px 15px;
+            }
+            
+            .horario-table th, .horario-table td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="horario-container">
+        <h2>Horario de Clases</h2>
+        <table class="horario-table">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                </tr>
+            </thead>
+            <tbody id="horario-body">
+                <tr>
+                    <td><input type="text" value="8:00 - 9:00"></td>
+                    <td><input type="text" value="Matemáticas"></td>
+                    <td><input type="text" value="Biología"></td>
+                    <td><input type="text" value="Español"></td>
+                    <td><input type="text" value="Física"></td>
+                    <td><input type="text" value="Química"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="9:10 - 10:10"></td>
+                    <td><input type="text" value="Historia"></td>
+                    <td><input type="text" value="Inglés"></td>
+                    <td><input type="text" value="Educación Física"></td>
+                    <td><input type="text" value="Artes"></td>
+                    <td><input type="text" value="Música"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="10:20 - 11:20"></td>
+                    <td><input type="text" value="Geografía"></td>
+                    <td><input type="text" value="Filosofía"></td>
+                    <td><input type="text" value="Tecnología"></td>
+                    <td><input type="text" value="Economía"></td>
+                    <td><input type="text" value="Psicología"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="buttons">
+            <button onclick="addRow()">Agregar Clase</button>
+            <button onclick="deleteRow()">Eliminar Clase</button>
+            <button onclick="saveSchedule()">Guardar Horario</button>
+        </div>
+    </div>
+
+    <script>
+        // Crear partículas flotantes
+        function createParticles() {
+            const particleCount = 15;
+            const colors = ['rgba(156, 39, 176, 0.5)', 'rgba(0, 229, 255, 0.5)', 'rgba(33, 150, 243, 0.5)'];
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Tamaño aleatorio entre 2px y 6px
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posición inicial aleatoria
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100 + 100}%`;
+                
+                // Color aleatorio
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Duración de animación aleatoria
+                const duration = Math.random() * 10 + 10;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Retraso de animación aleatorio
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                document.body.appendChild(particle);
+            }
+        }
+        
+        // Animación para las nuevas filas
+        function animateNewRow(row) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                row.style.transition = 'all 0.5s ease-out';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+                
+                // Resaltar la nueva fila
+                row.style.backgroundColor = 'rgba(0, 229, 255, 0.1)';
+                setTimeout(() => {
+                    row.style.transition = 'background-color 1.5s ease-out';
+                    row.style.backgroundColor = '';
+                }, 500);
+            }, 10);
+        }
+        
+        // Animación para eliminar filas
+        function animateDeleteRow(row, callback) {
+            row.style.transition = 'all 0.4s ease-in';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(-50px)';
+            
+            setTimeout(() => {
+                callback();
+            }, 400);
+        }
+        
+        // Añadir fila
+        function addRow() {
+            var table = document.getElementById("horario-body");
+            var row = table.insertRow(-1);
+            
+            // Animación para la nueva fila
+            animateNewRow(row);
+            
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var cell5 = row.insertCell(4);
+            var cell6 = row.insertCell(5);
+            
+            // Calcular nueva hora basada en la última fila
+            let lastTime = "8:00 - 9:00";
+            if (table.rows.length > 1) {
+                const lastRow = table.rows[table.rows.length - 2];
+                const lastTimeInput = lastRow.cells[0].querySelector('input');
+                if (lastTimeInput) {
+                    const times = lastTimeInput.value.split(" - ");
+                    if (times.length === 2) {
+                        const start = parseInt(times[0].split(":")[0]);
+                        const end = parseInt(times[1].split(":")[0]);
+                        lastTime = `${end}:00 - ${end+1}:00`;
+                    }
+                }
+            }
+            
+            cell1.innerHTML = `<input type='text' value='${lastTime}'>`;
+            cell2.innerHTML = "<input type='text' value=''>";
+            cell3.innerHTML = "<input type='text' value=''>";
+            cell4.innerHTML = "<input type='text' value=''>";
+            cell5.innerHTML = "<input type='text' value=''>";
+            cell6.innerHTML = "<input type='text' value=''>";
+            
+            // Agregar animación a los inputs de la nueva fila
+            setTimeout(() => {
+                const inputs = row.querySelectorAll('input');
+                inputs.forEach((input, index) => {
+                    input.style.transition = 'all 0.3s ease-out';
+                    input.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        input.style.transform = 'scale(1)';
+                    }, 300 + (index * 100));
+                });
+            }, 50);
+        }
+        
+        // Eliminar fila
+        function deleteRow() {
+            var table = document.getElementById("horario-body");
+            if (table.rows.length > 1) {
+                const lastRow = table.rows[table.rows.length - 1];
+                animateDeleteRow(lastRow, () => {
+                    table.deleteRow(-1);
+                });
+            } else {
+                // Animación de "shake" si no hay filas para eliminar
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    row.style.transition = 'transform 0.3s ease-in-out';
+                    row.style.transform = 'translateX(10px)';
+                    setTimeout(() => {
+                        row.style.transform = 'translateX(-10px)';
+                        setTimeout(() => {
+                            row.style.transform = 'translateX(0)';
+                        }, 100);
+                    }, 100);
+                });
+            }
+        }
+        
+        // Guardar horario
+        function saveSchedule() {
+            const saveBtn = document.querySelector('.buttons button:nth-child(3)');
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> Guardado!';
+            saveBtn.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
+            
+            setTimeout(() => {
+                saveBtn.innerHTML = 'Guardar Horario';
+                saveBtn.style.background = 'linear-gradient(135deg, #2196f3, #1565c0)';
+            }, 2000);
+            
+            // Aquí iría el código para guardar el horario
+            console.log("Horario guardado");
+        }
+        
+        // Inicializar partículas al cargar
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+
+<script>
+  // Verificar autenticación en cada página
+  document.addEventListener('DOMContentLoaded', function() {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      
+      if (!userData || !userData.isLoggedIn) {
+          window.location.href = 'registro.html';
+      }
+  });
+</script>
+
+<script>
+    // Verificar autenticación en cada página
+    document.addEventListener('DOMContentLoaded', function() {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (!userData || !userData.isLoggedIn) {
+            // Limpiar datos residuales al redirigir
+            localStorage.removeItem('userData');
+            localStorage.removeItem('profileImage');
+            window.location.href = 'registro.html';
+        }
+    });
+</script>
+
+</body>
+</html>

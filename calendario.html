@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Personal</title>
+    <style>
+        :root {
+            --primary: #00c8ff;
+            --primary-dark: #0095b8;
+            --bg: #121212;
+            --bg-light: #1e1e1e;
+            --text: #f0f0f0;
+            --text-light: #aaaaaa;
+            --urgent: #ff3a3a;
+            --high: #ff8a00;
+            --medium: #ffcc00;
+            --low: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(0, 200, 255, 0.5); }
+            to { text-shadow: 0 0 15px rgba(0, 200, 255, 0.8); }
+        }
+
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-light);
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .month-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .nav-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: bold;
+            padding: 0.5rem;
+            color: var(--primary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            min-height: 120px;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 200, 255, 0.2);
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-align: right;
+        }
+
+        .other-month {
+            opacity: 0.4;
+        }
+
+        .today {
+            border: 2px solid var(--primary);
+        }
+
+        .notes-container {
+            margin-top: 2rem;
+            background-color: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notes-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 0.8rem;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: span 2;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .note {
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--medium);
+            animation: noteAppear 0.3s ease-out;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        @keyframes noteAppear {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .note:hover {
+            transform: translateX(5px);
+        }
+
+        .note-title {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .note-priority {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .priority-urgent {
+            background-color: var(--urgent);
+            border-left-color: var(--urgent);
+        }
+
+        .priority-high {
+            background-color: var(--high);
+            border-left-color: var(--high);
+        }
+
+        .priority-medium {
+            background-color: var(--medium);
+            border-left-color: var(--medium);
+        }
+
+        .priority-low {
+            background-color: var(--low);
+            border-left-color: var(--low);
+        }
+
+        .day-notes {
+            max-height: 80px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-light);
+        }
+
+        .day-notes::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .day-notes::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+
+        .day-notes::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--bg-light);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 5px 30px rgba(0, 200, 255, 0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .floating-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .note-details {
+            margin-top: 1rem;
+        }
+
+        .note-details-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .note-details-date {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .note-details-content {
+            line-height: 1.6;
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 200, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 200, 255, 0); }
+        }
+
+        /* Estilos para notificaciones */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+            display: none;
+        }
+
+        .notification.active {
+            display: block;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .notification-content {
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            float: right;
+            cursor: pointer;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .audio-player {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .notes-form {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            .btn {
+                grid-column: span 1;
+            }
+            .calendar-day {
+                min-height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agenda Personal</h1>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="month-navigation">
+                    <button class="nav-btn" id="prev-month">&lt;</button>
+                    <h2 class="month-year" id="current-month">Mes Año</h2>
+                    <button class="nav-btn" id="next-month">&gt;</button>
+                </div>
+                <button class="btn" id="today-btn">Hoy</button>
+            </div>
+            
+            <div class="weekdays">
+                <div class="weekday">Dom</div>
+                <div class="weekday">Lun</div>
+                <div class="weekday">Mar</div>
+                <div class="weekday">Mié</div>
+                <div class="weekday">Jue</div>
+                <div class="weekday">Vie</div>
+                <div class="weekday">Sáb</div>
+            </div>
+            
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Los días se generarán con JavaScript -->
+            </div>
+        </div>
+        
+        <div class="notes-container">
+            <h3>Notas para <span id="selected-date-text">[Selecciona una fecha]</span></h3>
+            <div id="notes-list">
+                <!-- Las notas se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+    
+    <button class="floating-btn pulse" id="add-note-btn">+</button>
+    
+    <div class="modal" id="note-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal">&times;</button>
+            <h3 id="modal-title">Añadir Nueva Nota</h3>
+            <form id="note-form">
+                <input type="hidden" id="note-id">
+                <input type="hidden" id="note-date">
+                
+                <div class="form-group full-width">
+                    <label for="note-title">Título</label>
+                    <input type="text" id="note-title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="note-date-input">Fecha</label>
+                    <input type="date" id="note-date-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="note-priority">Prioridad</label>
+                    <select id="note-priority" required>
+                        <option value="low">Baja</option>
+                        <option value="medium" selected>Media</option>
+                        <option value="high">Alta</option>
+                        <option value="urgent">Urgente</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="note-alarm-time">Hora de alarma</label>
+                    <input type="time" id="note-alarm-time">
+                </div>
+                
+                <div class="form-group">
+                    <label for="note-alarm-sound">Tono de alarma</label>
+                    <select id="note-alarm-sound">
+                        <option value="default">Predeterminado</option>
+                        <option value="soft">Suave</option>
+                        <option value="urgent">Urgente</option>
+                        <option value="chime">Campana</option>
+                        <option value="beep">Pitido</option>
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="note-content">Contenido</label>
+                    <textarea id="note-content" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn" id="save-note">Guardar Nota</button>
+                <button type="button" class="btn" id="delete-note" style="display: none; background-color: #ff3a3a; margin-top: 0.5rem;">Eliminar Nota</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal" id="view-note-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-view-modal">&times;</button>
+            <div class="note-details">
+                <h3 class="note-details-title" id="view-note-title">Título de la nota</h3>
+                <div class="note-details-date" id="view-note-date">Fecha</div>
+                <div class="note-priority" id="view-note-priority">Prioridad</div>
+                <div class="note-details-content" id="view-note-content">Contenido de la nota...</div>
+                <div id="view-note-alarm" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-light);"></div>
+            </div>
+            <button class="btn" id="edit-note" style="margin-top: 1.5rem;">Editar Nota</button>
+        </div>
+    </div>
+
+    <!-- Notificación de alarma -->
+    <div class="notification" id="notification">
+        <button class="notification-close" id="close-notification">&times;</button>
+        <div class="notification-title" id="notification-title"></div>
+        <div class="notification-content" id="notification-content"></div>
+        <audio id="alarm-sound"></audio>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentDate = new Date();
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        let selectedDate = null;
+        let selectedNote = null;
+        let alarmTimeout = null;
+        let serviceWorkerRegistration = null;
+
+        // Sonidos de alarma con URLs públicas
+        const alarmSounds = {
+            default: 'sonido1.mp3',
+            soft: 'https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3',
+            urgent: 'https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-alarm-905.mp3',
+            chime: 'https://assets.mixkit.co/sfx/preview/mixkit-magic-marimba-283.mp3',
+            beep: 'https://assets.mixkit.co/sfx/preview/mixkit-retro-game-notification-212.mp3'
+        };
+
+        // Elementos del DOM
+        const calendarGrid = document.getElementById('calendar-grid');
+        const currentMonthElement = document.getElementById('current-month');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        const todayBtn = document.getElementById('today-btn');
+        const notesList = document.getElementById('notes-list');
+        const selectedDateText = document.getElementById('selected-date-text');
+        const addNoteBtn = document.getElementById('add-note-btn');
+        const noteModal = document.getElementById('note-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const noteForm = document.getElementById('note-form');
+        const noteTitle = document.getElementById('note-title');
+        const noteDateInput = document.getElementById('note-date-input');
+        const notePriority = document.getElementById('note-priority');
+        const noteContent = document.getElementById('note-content');
+        const noteAlarmTime = document.getElementById('note-alarm-time');
+        const noteAlarmSound = document.getElementById('note-alarm-sound');
+        const saveNoteBtn = document.getElementById('save-note');
+        const deleteNoteBtn = document.getElementById('delete-note');
+        const viewNoteModal = document.getElementById('view-note-modal');
+        const closeViewModalBtn = document.getElementById('close-view-modal');
+        const viewNoteTitle = document.getElementById('view-note-title');
+        const viewNoteDate = document.getElementById('view-note-date');
+        const viewNotePriority = document.getElementById('view-note-priority');
+        const viewNoteContent = document.getElementById('view-note-content');
+        const viewNoteAlarm = document.getElementById('view-note-alarm');
+        const editNoteBtn = document.getElementById('edit-note');
+        const notification = document.getElementById('notification');
+        const notificationTitle = document.getElementById('notification-title');
+        const notificationContent = document.getElementById('notification-content');
+        const closeNotificationBtn = document.getElementById('close-notification');
+        const alarmSound = document.getElementById('alarm-sound');
+
+        // Inicializar calendario
+        async function initCalendar() {
+            // Registrar el Service Worker para notificaciones push
+            if ('serviceWorker' in navigator) {
+                try {
+                    serviceWorkerRegistration = await navigator.serviceWorker.register('sw.js');
+                    console.log('Service Worker registrado con éxito:', serviceWorkerRegistration);
+                } catch (error) {
+                    console.error('Error al registrar el Service Worker:', error);
+                }
+            }
+
+            renderCalendar();
+            updateSelectedDate(new Date());
+            loadNotes();
+            requestNotificationPermission();
+            checkAlarms();
+            
+            // Verificar alarmas cada minuto por si hay cambios
+            setInterval(checkAlarms, 60000);
+        }
+
+        // Solicitar permiso para notificaciones
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    console.log('Permiso para notificaciones:', permission);
+                });
+            }
+        }
+
+        // Verificar alarmas
+        function checkAlarms() {
+            // Limpiar timeout anterior si existe
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout);
+            }
+            
+            const now = new Date();
+            const notesWithAlarms = notes.filter(note => {
+                if (!note.alarm) return false;
+                const alarmDate = new Date(note.alarm);
+                return alarmDate > now;
+            });
+            
+            if (notesWithAlarms.length === 0) return;
+            
+            // Ordenar por fecha de alarma más próxima
+            notesWithAlarms.sort((a, b) => new Date(a.alarm) - new Date(b.alarm));
+            
+            const nextAlarm = notesWithAlarms[0];
+            const alarmTime = new Date(nextAlarm.alarm).getTime();
+            const timeUntilAlarm = alarmTime - now.getTime();
+            
+            // Solo programar si la alarma es en el futuro
+            if (timeUntilAlarm > 0) {
+                alarmTimeout = setTimeout(() => {
+                    triggerAlarm(nextAlarm);
+                    checkAlarms(); // Verificar si hay más alarmas
+                }, timeUntilAlarm);
+                
+                console.log(`Alarma programada para ${nextAlarm.alarm} (en ${Math.floor(timeUntilAlarm/1000)} segundos)`);
+            }
+        }
+
+        // Activar alarma
+        function triggerAlarm(note) {
+            console.log('¡Alarma activada!', note);
+            
+            // Mostrar notificación en la app
+            notificationTitle.textContent = note.title;
+            notificationContent.textContent = note.content;
+            notification.classList.add('active');
+            
+            // Reproducir sonido de alarma
+            const soundSrc = alarmSounds[note.alarmSound || 'default'];
+            if (soundSrc) {
+                alarmSound.src = soundSrc;
+                alarmSound.loop = true;
+                alarmSound.play().catch(e => console.error('Error al reproducir sonido:', e));
+            }
+            
+            // Mostrar notificación del sistema si está disponible
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification(note.title, {
+                        body: note.content,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/3652/3652191.png',
+                        requireInteraction: true
+                    });
+                } catch (e) {
+                    console.error('Error al mostrar notificación:', e);
+                }
+            }
+            
+            // Vibrar si está soportado
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+
+        // Renderizar calendario
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Actualizar el encabezado del mes
+            currentMonthElement.textContent = `${getMonthName(month)} ${year}`;
+            
+            // Obtener el primer día del mes y el último día del mes
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Obtener el día de la semana del primer día (0 = Domingo, 6 = Sábado)
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // Obtener el último día del mes anterior
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            
+            // Añadir días del mes anterior
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                const date = new Date(year, month - 1, day);
+                addDayToCalendar(date, true);
+            }
+            
+            // Añadir días del mes actual
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                addDayToCalendar(date, false);
+            }
+            
+            // Calcular cuántos días del próximo mes necesitamos añadir
+            const totalCells = firstDayOfWeek + lastDay.getDate();
+            const remainingCells = 7 - (totalCells % 7);
+            
+            // Añadir días del próximo mes si es necesario
+            if (remainingCells < 7) {
+                for (let day = 1; day <= remainingCells; day++) {
+                    const date = new Date(year, month + 1, day);
+                    addDayToCalendar(date, true);
+                }
+            }
+        }
+
+        // Añadir día al calendario
+        function addDayToCalendar(date, isOtherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = `calendar-day ${isOtherMonth ? 'other-month' : ''}`;
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            
+            const dayNotes = document.createElement('div');
+            dayNotes.className = 'day-notes';
+            
+            // Verificar si es hoy
+            const today = new Date();
+            if (date.getDate() === today.getDate() && 
+                date.getMonth() === today.getMonth() && 
+                date.getFullYear() === today.getFullYear() && 
+                !isOtherMonth) {
+                dayElement.classList.add('today');
+            }
+            
+            // Mostrar notas para este día
+            const dateString = formatDate(date);
+            const dayNotesData = notes.filter(note => note.date === dateString);
+            
+            dayNotesData.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = `note priority-${note.priority}`;
+                noteElement.innerHTML = `
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-priority priority-${note.priority}">${getPriorityText(note.priority)}</div>
+                    ${note.alarm ? `<div style="font-size: 0.8rem; color: var(--primary); margin-top: 0.3rem;">⏰ ${formatTime(note.alarm)}</div>` : ''}
+                `;
+                
+                noteElement.addEventListener('click', () => viewNote(note.id));
+                dayNotes.appendChild(noteElement);
+            });
+            
+            dayElement.appendChild(dayNumber);
+            dayElement.appendChild(dayNotes);
+            
+            // Seleccionar día al hacer clic
+            if (!isOtherMonth) {
+                dayElement.addEventListener('click', () => updateSelectedDate(date));
+            }
+            
+            calendarGrid.appendChild(dayElement);
+        }
+
+        // Actualizar fecha seleccionada
+        function updateSelectedDate(date) {
+            selectedDate = date;
+            const dateString = formatDate(date);
+            selectedDateText.textContent = dateString;
+            
+            // Mostrar notas para la fecha seleccionada
+            const filteredNotes = notes.filter(note => note.date === dateString);
+            renderNotesList(filteredNotes);
+            
+            // Resaltar día en el calendario
+            const days = document.querySelectorAll('.calendar-day:not(.other-month)');
+            days.forEach(day => {
+                day.classList.remove('selected');
+                const dayNumber = parseInt(day.querySelector('.day-number').textContent);
+                if (dayNumber === date.getDate()) {
+                    day.classList.add('selected');
+                }
+            });
+        }
+
+        // Renderizar lista de notas
+        function renderNotesList(notes) {
+            notesList.innerHTML = '';
+            
+            if (notes.length === 0) {
+                notesList.innerHTML = '<p style="color: var(--text-light); text-align: center;">No hay notas para esta fecha</p>';
+                return;
+            }
+            
+            notes.sort((a, b) => {
+                const priorityOrder = { 'urgent': 0, 'high': 1, 'medium': 2, 'low': 3 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+            
+            notes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = `note priority-${note.priority}`;
+                noteElement.innerHTML = `
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-priority priority-${note.priority}">${getPriorityText(note.priority)}</div>
+                    <div class="note-content">${note.content.substring(0, 50)}${note.content.length > 50 ? '...' : ''}</div>
+                    ${note.alarm ? `<div style="font-size: 0.8rem; color: var(--primary); margin-top: 0.3rem;">⏰ ${formatTime(note.alarm)}</div>` : ''}
+                `;
+                
+                noteElement.addEventListener('click', () => viewNote(note.id));
+                notesList.appendChild(noteElement);
+            });
+        }
+
+        // Cargar notas
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                notes = JSON.parse(savedNotes);
+            }
+        }
+
+        // Guardar notas
+        function saveNotes() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+            
+            // Si estás en Android WebView, enviar las notas a la app nativa
+            if (window.AndroidInterface) {
+                window.AndroidInterface.updateWidgetNotes(JSON.stringify(notes));
+            }
+            
+            renderCalendar();
+            if (selectedDate) {
+                updateSelectedDate(selectedDate);
+            }
+            checkAlarms();
+        }
+
+        // Ver nota
+        function viewNote(noteId) {
+            selectedNote = notes.find(note => note.id === noteId);
+            if (!selectedNote) return;
+            
+            viewNoteTitle.textContent = selectedNote.title;
+            viewNoteDate.textContent = selectedNote.date;
+            viewNotePriority.textContent = getPriorityText(selectedNote.priority);
+            viewNotePriority.className = `note-priority priority-${selectedNote.priority}`;
+            viewNoteContent.textContent = selectedNote.content;
+            
+            if (selectedNote.alarm) {
+                viewNoteAlarm.textContent = `⏰ Alarma: ${formatTime(selectedNote.alarm)} (${selectedNote.alarmSound || 'default'})`;
+                viewNoteAlarm.style.display = 'block';
+            } else {
+                viewNoteAlarm.style.display = 'none';
+            }
+            
+            viewNoteModal.classList.add('active');
+        }
+
+        // Abrir modal para añadir/editar nota
+        function openNoteModal(date = null, note = null) {
+            if (note) {
+                // Modo edición
+                document.getElementById('modal-title').textContent = 'Editar Nota';
+                document.getElementById('note-id').value = note.id;
+                document.getElementById('note-title').value = note.title;
+                document.getElementById('note-date-input').value = note.date;
+                document.getElementById('note-priority').value = note.priority;
+                document.getElementById('note-content').value = note.content;
+                
+                // Extraer solo la hora si hay alarma
+                if (note.alarm) {
+                    const alarmDate = new Date(note.alarm);
+                    const hours = String(alarmDate.getHours()).padStart(2, '0');
+                    const minutes = String(alarmDate.getMinutes()).padStart(2, '0');
+                    document.getElementById('note-alarm-time').value = `${hours}:${minutes}`;
+                } else {
+                    document.getElementById('note-alarm-time').value = '';
+                }
+                
+                document.getElementById('note-alarm-sound').value = note.alarmSound || 'default';
+                deleteNoteBtn.style.display = 'block';
+            } else {
+                // Modo añadir
+                document.getElementById('modal-title').textContent = 'Añadir Nueva Nota';
+                document.getElementById('note-id').value = '';
+                document.getElementById('note-title').value = '';
+                document.getElementById('note-date-input').value = date || formatDate(selectedDate);
+                document.getElementById('note-priority').value = 'medium';
+                document.getElementById('note-content').value = '';
+                document.getElementById('note-alarm-time').value = '';
+                document.getElementById('note-alarm-sound').value = 'default';
+                deleteNoteBtn.style.display = 'none';
+            }
+            
+            noteModal.classList.add('active');
+        }
+
+        // Formatear fecha
+        function formatDate(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Formatear solo hora
+        function formatTime(datetime) {
+            if (!datetime) return '';
+            const d = new Date(datetime);
+            return d.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Obtener nombre del mes
+        function getMonthName(monthIndex) {
+            const months = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+            return months[monthIndex];
+        }
+
+        // Obtener texto de prioridad
+        function getPriorityText(priority) {
+            const priorities = {
+                'urgent': 'Urgente',
+                'high': 'Alta',
+                'medium': 'Media',
+                'low': 'Baja'
+            };
+            return priorities[priority] || priority;
+        }
+
+        // Generar ID único
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Event Listeners
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        todayBtn.addEventListener('click', () => {
+            currentDate = new Date();
+            renderCalendar();
+            updateSelectedDate(currentDate);
+        });
+
+        addNoteBtn.addEventListener('click', () => {
+            openNoteModal();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            noteModal.classList.remove('active');
+        });
+
+        closeViewModalBtn.addEventListener('click', () => {
+            viewNoteModal.classList.remove('active');
+        });
+
+        editNoteBtn.addEventListener('click', () => {
+            viewNoteModal.classList.remove('active');
+            openNoteModal(null, selectedNote);
+        });
+
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const noteId = document.getElementById('note-id').value || generateId();
+            const title = noteTitle.value;
+            const date = noteDateInput.value;
+            const priority = notePriority.value;
+            const content = noteContent.value;
+            const alarmTime = document.getElementById('note-alarm-time').value;
+            const alarmSoundValue = noteAlarmSound.value;
+            
+            if (!title || !date || !content) return;
+            
+            // Combinar fecha de la nota con hora de la alarma si existe
+            let alarmDateTime = '';
+            if (alarmTime) {
+                alarmDateTime = `${date}T${alarmTime}`;
+            }
+            
+            // Buscar si ya existe una nota con este ID
+            const existingNoteIndex = notes.findIndex(note => note.id === noteId);
+            
+            if (existingNoteIndex !== -1) {
+                // Actualizar nota existente
+                notes[existingNoteIndex] = { 
+                    id: noteId, 
+                    title, 
+                    date, 
+                    priority, 
+                    content, 
+                    alarm: alarmDateTime, 
+                    alarmSound: alarmSoundValue 
+                };
+            } else {
+                // Añadir nueva nota
+                notes.push({ 
+                    id: noteId, 
+                    title, 
+                    date, 
+                    priority, 
+                    content, 
+                    alarm: alarmDateTime, 
+                    alarmSound: alarmSoundValue 
+                });
+            }
+            
+            saveNotes();
+            noteModal.classList.remove('active');
+        });
+
+        deleteNoteBtn.addEventListener('click', () => {
+            if (!selectedNote) return;
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta nota?')) {
+                notes = notes.filter(note => note.id !== selectedNote.id);
+                saveNotes();
+                noteModal.classList.remove('active');
+            }
+        });
+
+        closeNotificationBtn.addEventListener('click', () => {
+            notification.classList.remove('active');
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+        });
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            initCalendar();
+        });
+    </script>
+</body>
+</html>

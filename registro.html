@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-in-out;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0ff;
+            font-size: 28px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px 10px 5px 10px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #555;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-bottom: 2px solid #0ff;
+        }
+
+        .input-group label {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            color: #aaa;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus ~ label,
+        .input-group input:valid ~ label,
+        .input-group select:focus ~ label,
+        .input-group select:valid ~ label {
+            top: -10px;
+            left: 5px;
+            font-size: 12px;
+            color: #0ff;
+        }
+
+        .optional {
+            font-size: 12px;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .profile-pic {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #333;
+            margin-bottom: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #555;
+            transition: 0.3s;
+        }
+
+        .profile-pic-preview:hover {
+            border-color: #0ff;
+        }
+
+        .profile-pic-preview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .profile-pic label {
+            color: #0ff;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .profile-pic input[type="file"] {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #00b4db, #0083b0);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #0083b0, #00b4db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .circles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .circles li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 255, 255, 0.2);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        .circles li:nth-child(1) {
+            left: 25%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 0s;
+        }
+
+        .circles li:nth-child(2) {
+            left: 10%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 2s;
+            animation-duration: 12s;
+        }
+
+        .circles li:nth-child(3) {
+            left: 70%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 4s;
+        }
+
+        .circles li:nth-child(4) {
+            left: 40%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 0s;
+            animation-duration: 18s;
+        }
+
+        .circles li:nth-child(5) {
+            left: 65%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 0s;
+        }
+
+        .circles li:nth-child(6) {
+            left: 75%;
+            width: 110px;
+            height: 110px;
+            animation-delay: 3s;
+        }
+
+        .circles li:nth-child(7) {
+            left: 35%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 7s;
+        }
+
+        .circles li:nth-child(8) {
+            left: 50%;
+            width: 25px;
+            height: 25px;
+            animation-delay: 15s;
+            animation-duration: 45s;
+        }
+
+        .circles li:nth-child(9) {
+            left: 20%;
+            width: 15px;
+            height: 15px;
+            animation-delay: 2s;
+            animation-duration: 35s;
+        }
+
+        .circles li:nth-child(10) {
+            left: 85%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 0s;
+            animation-duration: 11s;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+       
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
+        }
+        
+        .login-link a {
+            color: #0ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="circles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </div>
+
+    <div class="container">
+        <h2>Registro de Usuario</h2>
+        
+        <form id="registerForm">
+            <div class="input-group">
+                <input type="text" id="name" required>
+                <label for="name">Nombre completo</label>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="username" required>
+                <label for="username">Nombre de usuario</label>
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="password" required>
+                <label for="password">Contraseña</label>
+            </div>
+            
+            <div class="input-group">
+                <select id="gender" required>
+                    <option value="" disabled selected></option>
+                    <option value="masculino">Masculino</option>
+                    <option value="femenino">Femenino</option>
+                    <option value="no definido">No definido</option>
+                </select>
+                <label for="gender">Género</label>
+            </div>
+            
+            <div class="input-group">
+                <input type="email" id="email">
+                <label for="email">Correo electrónico <span class="optional">(opcional)</span></label>
+            </div>
+            
+            <div class="profile-pic">
+                <div class="profile-pic-preview" id="profilePreview">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <label for="profileImage">
+                    <span id="profileLabel">Subir foto de perfil</span>
+                    <span class="optional">(opcional)</span>
+                </label>
+                <input type="file" id="profileImage" accept="image/*">
+            </div>
+            
+            <button type="submit">Registrarse</button>
+            
+        </form>
+    </div>
+
+    <script>
+        // Animación para la vista previa de la imagen de perfil
+        const profileImage = document.getElementById('profileImage');
+        const profilePreview = document.getElementById('profilePreview');
+        const profileLabel = document.getElementById('profileLabel');
+
+        profileImage.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    profilePreview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                    profileLabel.textContent = "Cambiar foto";
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Manejo del envío del formulario
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Obtener datos del formulario
+            const userData = {
+                name: document.getElementById('name').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+                gender: document.getElementById('gender').value,
+                email: document.getElementById('email').value.trim(),
+                avatarInitial: document.getElementById('name').value.trim().charAt(0).toUpperCase(),
+                isLoggedIn: true
+            };
+            
+            // Guardar imagen si se subió
+            const profileImage = document.getElementById('profileImage').files[0];
+            if (profileImage) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    localStorage.setItem('profileImage', event.target.result);
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    redirectToDashboard();
+                }
+                reader.readAsDataURL(profileImage);
+            } else {
+                localStorage.setItem('userData', JSON.stringify(userData));
+                redirectToDashboard();
+            }
+        });
+        
+        // Redirección al dashboard
+        function redirectToDashboard() {
+            const container = document.querySelector('.container');
+            container.style.animation = 'none';
+            container.offsetHeight; // Trigger reflow
+            container.style.animation = 'fadeIn 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h2 style="margin: 20px 0; color: #0ff;">¡Registro exitoso!</h2>
+                        <p>Redirigiendo a tu panel de control...</p>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }, 500);
+        }
+        
+        // Enlace para iniciar sesión (simulado)
+        document.getElementById('loginLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('En un sistema real, esto redirigiría a una página de inicio de sesión');
+        });
+        
+        // Verificar si ya está logueado
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if (userData && userData.isLoggedIn) {
+                window.location.href = 'inicio.html';
+            }
+        });
+    </script>
+
+<script>
+    // Verificar si ya está logueado
+    document.addEventListener('DOMContentLoaded', function() {
+        // Limpiar datos de sesión previos al mostrar el registro
+        localStorage.removeItem('userData');
+        localStorage.removeItem('profileImage');
+        
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (userData && userData.isLoggedIn) {
+            window.location.href = 'index.html';
+        }
+    });
+</script>
+
+</body>
+</html>
